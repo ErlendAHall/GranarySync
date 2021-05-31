@@ -1,0 +1,10 @@
+{
+    "syncPaths": [
+        {
+            "name": "testrun",
+            "origin": "/granary/edev/GranarySync/origin/",
+            "destination": "/granary/edev/GranarySync/destination/"
+        }
+    ],
+    "backupsPerDay": 2
+}
