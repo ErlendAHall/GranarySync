@@ -11,6 +11,7 @@
  * @property {string} name
  * @property {string} origin
  * @property {string} destination
+ * @property {string[]} exclude
  * @property {boolean|undefined} enabled
  */
 

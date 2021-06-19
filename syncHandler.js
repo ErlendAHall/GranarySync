@@ -1,6 +1,6 @@
-import "./docs.js"
-import { exec } from "https://deno.land/x/exec/mod.ts"
-import { logger } from "./logger.js"
+import "./docs.js";
+import { exec } from "https://deno.land/x/exec/mod.ts";
+import { logger } from "./logger.js";
 
 /**
  * Creates the sync handler.
@@ -9,34 +9,32 @@ import { logger } from "./logger.js"
  */
 export function createSyncHandler(syncPaths) {
   /** @type SyncHandler */
-  let syncHandler = Object.create({}, Object)
+  let syncHandler = Object.create({}, Object);
 
-  syncHandler.backupProcedure = undefined
-  syncHandler.syncPaths = syncPaths
+  syncHandler.backupProcedure = undefined;
+  syncHandler.syncPaths = syncPaths;
   syncHandler.setup = function setupPaths() {
     this.backupProcedure = this.syncPaths.map((syncPath) => {
-      return createBackupProcedure(syncPath)
-    })
-  }
+      return createBackupProcedure(syncPath);
+    });
+  };
 
   syncHandler.runAllBackups = function runRsync() {
     if (Array.isArray(this.backupProcedure)) {
-      console.info("running backups")
       this.backupProcedure.forEach((procedure) => {
-        console.log(procedure)
         if (procedure instanceof Function) {
-          procedure()
+          procedure();
         }
-      })
+      });
     } else {
       logger.writeToLog(
         "exception",
-        "The backup procedure has not been initialized."
-      )
+        "The backup procedure has not been initialized.",
+      );
     }
-  }
+  };
 
-  return syncHandler
+  return syncHandler;
 }
 
 /**
@@ -47,14 +45,12 @@ export function createSyncHandler(syncPaths) {
  */
 function createBackupProcedure(syncPath) {
   return async function runBackup() {
-    let command = createCommand(syncPath)
+    let command = createCommand(syncPath);
 
     if (command) {
-      let response = await exec(command)
-      console.log("%c⧭", "color: #aa00ff", response)
-      logger.writeToLog("rsync", response.output)
+      await exec(command);
     }
-  }
+  };
 }
 
 /**
@@ -62,5 +58,13 @@ function createBackupProcedure(syncPath) {
  * @param {SyncPath} syncPath where to sync files.
  */
 function createCommand(syncPath, dryRun) {
-  return `rsync -arptgouE ${syncPath.origin} ${syncPath.destination}`
+  let exclude = new String("");
+
+  if (syncPath.exclude && syncPath.exclude.length > 0) {
+    syncPath.exclude.map((ex) => {
+      exclude += `--exclude ${ex} `;
+    });
+  }
+
+  return `rsync -arptgouE ${exclude.trimEnd()} ${syncPath.origin} ${syncPath.destination}`;
 }

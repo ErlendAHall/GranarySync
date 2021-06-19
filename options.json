@@ -1,10 +1,10 @@
 {
-    "syncPaths": [
-        {
-            "name": "testrun",
-            "origin": "/granary/edev/GranarySync/origin/",
-            "destination": "/granary/edev/GranarySync/destination/"
-        }
-    ],
-    "backupsPerDay": 2
+  "syncPaths": [
+    {
+      "name": "gamesaves",
+      "origin": "/granary/gamesaves",
+      "destination": "/granary/azure/granary0sa/granary/gamesaves"
+    }
+  ],
+  "backupsPerDay": 2
 }

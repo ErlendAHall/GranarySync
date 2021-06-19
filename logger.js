@@ -1,7 +1,7 @@
-import { utils } from "./util.js"
+import { utils } from "./util.js";
 
 export let logger = {
-  logPath: Deno.cwd() + "/logs",
+  logPath: "/var/log/granarysync",
 
   /**
    * Creates a single log line entry.
@@ -10,9 +10,9 @@ export let logger = {
    * @returns {Uint8Array} The new log entry.
    */
   createLogEntry: function createLogEntry(type, message) {
-    let dateToday = new Date().toUTCString()
-    let entry = `[${type.toLocaleUpperCase()}] ${message} ${dateToday}\n`
-    return utils.encodeText(entry)
+    let dateToday = new Date().toUTCString();
+    let entry = `[${type.toLocaleUpperCase()}] ${message} ${dateToday}\n`;
+    return utils.encodeText(entry);
   },
 
   /**
@@ -22,25 +22,18 @@ export let logger = {
    * @returns {Promise<void>} void
    */
   writeToLog: async function writeToLogBasedOnType(type, message) {
-    let dateToday = new Date().toLocaleDateString()
+    let dateToday = new Date().toISOString();
 
     switch (type) {
       case "exception":
       case "rsync":
       case "azure":
-        await Deno.writeFile(
-          `${this.logPath}/${dateToday}.log`,
-          this.createLogEntry(type, message),
-          { append: true }
-        )
-        break
       case "runtime":
         await Deno.writeFile(
           `${this.logPath}/${dateToday}.log`,
           this.createLogEntry(type, message),
-          { append: true }
-        )
-        break
+        );
+        break;
     }
-  }
-}
+  },
+};

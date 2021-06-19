@@ -6,10 +6,10 @@ export let utils = {
    */
   encodeText: function encodeText(text) {
     if (text) {
-      let encoder = new TextEncoder()
-      return encoder.encode(text)
+      let encoder = new TextEncoder();
+      return encoder.encode(text);
     } else {
-      return encoder.encode("Log entry input was undefined.")
+      return encoder.encode("Log entry input was undefined.");
     }
-  }
-}
+  },
+};
