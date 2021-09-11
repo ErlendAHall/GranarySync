@@ -12,4 +12,25 @@ export let utils = {
       return encoder.encode("Log entry input was undefined.");
     }
   },
+  /**
+ * Splits an incoming command into its parts.
+ * @param {string} command
+ * @returns {string[]} List of stdin commands.
+ */
+  splitCommands: function splitCommand(command) {
+    let cmdRegExp = /[^\s"]+|"([^"]*)"/gi;
+    let splits = [];
+
+    do {
+      //Each call to exec returns the next regex match as an array
+      var match = cmdRegExp.exec(command);
+      if (match != null) {
+        //Index 1 in the array is the captured group if it exists
+        //Index 0 is the matched text, which we use if no captured group exists
+        splits.push(match[1] ? match[1] : match[0]);
+      }
+    } while (match != null);
+
+    return splits;
+  },
 };
