@@ -1,6 +1,7 @@
 import "./docs.js";
 import { exec } from "https://deno.land/x/exec/mod.ts";
 import { logger } from "./logger.js";
+import { utils } from "./util.js"
 
 /**
  * Creates the sync handler.
@@ -9,32 +10,32 @@ import { logger } from "./logger.js";
  */
 export function createSyncHandler(syncPaths) {
   /** @type SyncHandler */
-  let syncHandler = Object.create({}, Object);
+  let syncHandler = Object.create({}, Object)
 
-  syncHandler.backupProcedure = undefined;
-  syncHandler.syncPaths = syncPaths;
+  syncHandler.backupProcedure = undefined
+  syncHandler.syncPaths = syncPaths
   syncHandler.setup = function setupPaths() {
     this.backupProcedure = this.syncPaths.map((syncPath) => {
-      return createBackupProcedure(syncPath);
-    });
-  };
+      return createBackupProcedure(syncPath)
+    })
+  }
 
   syncHandler.runAllBackups = function runRsync() {
     if (Array.isArray(this.backupProcedure)) {
       this.backupProcedure.forEach((procedure) => {
         if (procedure instanceof Function) {
-          procedure();
+          procedure()
         }
-      });
+      })
     } else {
       logger.writeToLog(
         "exception",
-        "The backup procedure has not been initialized.",
-      );
+        "The backup procedure has not been initialized."
+      )
     }
-  };
+  }
 
-  return syncHandler;
+  return syncHandler
 }
 
 /**
@@ -45,12 +46,19 @@ export function createSyncHandler(syncPaths) {
  */
 function createBackupProcedure(syncPath) {
   return async function runBackup() {
-    let command = createCommand(syncPath);
+    let command = createCommand(syncPath)
+    let splitCommands = utils.splitCommand(command)
 
-    if (command) {
-      await exec(command);
+    if (splitCommands) {
+      var process = Deno.run({
+        cmd: splitCommands,
+        stderr: "null",
+        stdin: "null",
+        stdout: "null"
+      })
+      await process.status()
     }
-  };
+  }
 }
 
 /**
