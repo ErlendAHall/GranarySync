@@ -7,12 +7,14 @@ export let logger = {
    * Creates a single log line entry.
    * @param {"exception"|"rsync"|"azure"|"runtime"} type
    * @param {string} message
-   * @returns {Uint8Array} The new log entry.
+   * @returns {Uint8Array|undefined} The new log entry.
    */
   createLogEntry: function createLogEntry(type, message) {
-    let dateToday = new Date().toUTCString();
-    let entry = `[${type.toLocaleUpperCase()}] ${message} ${dateToday}\n`;
-    return utils.encodeText(entry);
+    if (Reflect.has(utils, "encodeText")) {
+      let dateToday = new Date().toUTCString();
+      let entry = `[${type.toLocaleUpperCase()}] ${message} ${dateToday}\n`;
+      return utils.encodeText(entry);
+    }
   },
 
   /**

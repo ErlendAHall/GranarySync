@@ -1,41 +1,45 @@
 import "./docs.js";
-import { exec } from "https://deno.land/x/exec/mod.ts";
 import { logger } from "./logger.js";
-import { utils } from "./util.js"
+import { utils } from "./util.js";
 
 /**
  * Creates the sync handler.
  * @param {SyncPath[]} syncPaths
  * @returns {SyncHandler} The synchandler.
  */
-export function createSyncHandler(syncPaths) {
+function syncHandler(syncPaths) {
   /** @type SyncHandler */
-  let syncHandler = Object.create({}, Object)
+  let syncHandler = Object.create({}, Object);
 
-  syncHandler.backupProcedure = undefined
-  syncHandler.syncPaths = syncPaths
-  syncHandler.setup = function setupPaths() {
-    this.backupProcedure = this.syncPaths.map((syncPath) => {
-      return createBackupProcedure(syncPath)
-    })
-  }
+  Reflect.defineProperty(syncHandler, "backupProcedure", {value: undefined, writable: false})
+  Reflect.defineProperty(syncHandler, "syncPaths", {value: syncPaths, writable: false})
+  Reflect.defineProperty(syncHandler, "setup", {
+    value: function setupPaths() {
+      this.backupProcedure = this.syncPaths.map((syncPath) => {
+        return createBackupProcedure(syncPath);
+      });
+    },
+    writable: false
+  })
+  Reflect.defineProperty(syncHandler, "runAllBackups", {
+    value: function runRsync() {
+      if (Array.isArray(this.backupProcedure)) {
+        this.backupProcedure.forEach((procedure) => {
+          if (procedure instanceof Function) {
+            procedure();
+          }
+        });
+      } else {
+        logger.writeToLog(
+          "exception",
+          "The backup procedure has not been initialized.",
+        );
+      }
+    },
+    writable: false
+  })
 
-  syncHandler.runAllBackups = function runRsync() {
-    if (Array.isArray(this.backupProcedure)) {
-      this.backupProcedure.forEach((procedure) => {
-        if (procedure instanceof Function) {
-          procedure()
-        }
-      })
-    } else {
-      logger.writeToLog(
-        "exception",
-        "The backup procedure has not been initialized."
-      )
-    }
-  }
-
-  return syncHandler
+  return syncHandler;
 }
 
 /**
@@ -46,19 +50,19 @@ export function createSyncHandler(syncPaths) {
  */
 function createBackupProcedure(syncPath) {
   return async function runBackup() {
-    let command = createCommand(syncPath)
-    let splitCommands = utils.splitCommand(command)
+    let command = createCommand(syncPath);
+    let splitCommands = utils.splitCommand(command);
 
     if (splitCommands) {
       var process = Deno.run({
         cmd: splitCommands,
         stderr: "null",
         stdin: "null",
-        stdout: "null"
-      })
-      await process.status()
+        stdout: "null",
+      });
+      await process.status();
     }
-  }
+  };
 }
 
 /**
@@ -76,3 +80,5 @@ function createCommand(syncPath, dryRun) {
 
   return `rsync -arptgouE ${exclude.trimEnd()} ${syncPath.origin} ${syncPath.destination}`;
 }
+
+export {syncHandler}

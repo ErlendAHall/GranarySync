@@ -1,0 +1,20 @@
+{
+  "syncPaths": [
+    {
+      "name": "gamesaves",
+      "origin": "/granary/gamesaves",
+      "destination": "/granary/jotta/gamesaves"
+    },
+    {
+      "name": "passwords",
+      "origin": "/granary/bitwarden/store",
+      "destination": "/granary/jotta/passwords"
+    },
+    {
+      "name": "biblio",
+      "origin": "/granary/biblio/client/Data/TheUser/files",
+      "destination": "/granary/jotta/biblio"
+    }
+  ],
+  "backupsPerDay": 5
+}
