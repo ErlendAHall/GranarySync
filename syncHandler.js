@@ -7,17 +7,23 @@ import { utils } from "./util.js";
  * @param {SyncPath[]} syncPaths
  * @returns {SyncHandler} The synchandler.
  */
-function syncHandler(syncPaths) {
+function syncHandler(...syncPaths) {
   /** @type SyncHandler */
-  let syncHandler = Object.create({}, Object);
+  let syncHandler = Object.create({}, Object)
 
-  Reflect.defineProperty(syncHandler, "backupProcedure", {value: undefined, writable: false})
-  Reflect.defineProperty(syncHandler, "syncPaths", {value: syncPaths, writable: false})
+  Reflect.defineProperty(syncHandler, "backupProcedure", {
+    value: undefined,
+    writable: true
+  })
+  Reflect.defineProperty(syncHandler, "syncPaths", {
+    value: syncPaths,
+    writable: false
+  })
   Reflect.defineProperty(syncHandler, "setup", {
     value: function setupPaths() {
       this.backupProcedure = this.syncPaths.map((syncPath) => {
-        return createBackupProcedure(syncPath);
-      });
+        return createBackupProcedure(syncPath)
+      })
     },
     writable: false
   })
@@ -26,20 +32,20 @@ function syncHandler(syncPaths) {
       if (Array.isArray(this.backupProcedure)) {
         this.backupProcedure.forEach((procedure) => {
           if (procedure instanceof Function) {
-            procedure();
+            procedure()
           }
-        });
+        })
       } else {
         logger.writeToLog(
           "exception",
-          "The backup procedure has not been initialized.",
-        );
+          "The backup procedure has not been initialized."
+        )
       }
     },
     writable: false
   })
 
-  return syncHandler;
+  return syncHandler
 }
 
 /**
@@ -50,19 +56,19 @@ function syncHandler(syncPaths) {
  */
 function createBackupProcedure(syncPath) {
   return async function runBackup() {
-    let command = createCommand(syncPath);
-    let splitCommands = utils.splitCommand(command);
+    let command = createCommand(syncPath)
+    let splitCommands = utils.splitCommands(command)
 
     if (splitCommands) {
       var process = Deno.run({
         cmd: splitCommands,
         stderr: "null",
         stdin: "null",
-        stdout: "null",
-      });
-      await process.status();
+        stdout: "null"
+      })
+      await process.status()
     }
-  };
+  }
 }
 
 /**
