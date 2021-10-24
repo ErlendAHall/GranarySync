@@ -3,26 +3,24 @@ import { optionsReader } from "./optionsReader.js"
 import { logger } from "./logger.js"
 import { syncHandler as syncer } from "./syncHandler.js"
 
-console.info("starting")
 const args = Deno.args
 
-if (Array.isArray(args) && args.length > 0 && args[0] === "config") {
-  config()
-} else {
-  start()
+if (Array.isArray(args) && args.length > 0) {
+  // Backup prodecure runs on demand.
+  if (args.find((arg) => arg === "--run-once")) {
+    void start(true)
+  } else if (args.find((arg) => arg !== "--run-once" || arg !== "--debug")) {
+    logger.writeToLog(
+      "exception",
+      "The argument(s) " + args.join(",") + "are not valid"
+    )
+    // Backup procedure is running on an interval.
+  } else {
+    start()
+  }
 }
 
-async function config() {
-  let wasmCode = await Deno.readFile(
-    "target/wasm32-unknown-unknown/debug/granary_sync_options.wasm"
-  )
-  let instance = new WebAssembly.Instance(new WebAssembly.Module(wasmCode))
-  let { main } = instance.exports
-  console.log("%c⧭", "color: #e50000", main)
-  main()
-}
-
-async function start() {
+async function start(runOnce) {
   if (Reflect.has(optionsReader, "read")) {
     /** @type Options */
     var options = await optionsReader.read()
@@ -40,10 +38,16 @@ async function start() {
         console.info("GranarySync is running.")
         console.info("The following paths are handled:")
         console.info(syncHandler.syncPaths)
-        setInterval(function doBackUp() {
-          logger.writeToLog("runtime", "Running backups...")
+
+        if (runOnce) {
+          logger.writeToLog("runtime", "Running single backups...")
           syncHandler.runAllBackups()
-        }, backupInstructions.backupInterval)
+        } else {
+          setInterval(function doBackUp() {
+            logger.writeToLog("runtime", "Running periodic backups...")
+            syncHandler.runAllBackups()
+          }, backupInstructions.backupInterval)
+        }
       }
     }
   } else {
