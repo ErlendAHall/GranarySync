@@ -34,6 +34,11 @@ export let utils = {
     return splits
   },
 
+  /**
+   * Attemps to resolve the debug flag from Deno.args,
+   * signifying the application is in debug mode.
+   * @returns {"debug"|"prod"}
+   */
   getEnvironment: function getEnvironment() {
     const args = Deno.args
     if (Array.isArray(args) && args.length > 0) {
