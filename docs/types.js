@@ -13,6 +13,7 @@
  * @property {string} destination
  * @property {string[]} exclude
  * @property {boolean|undefined} enabled
+ * @property {number|undefined} backupInterval
  */
 
 /**

@@ -1,4 +1,5 @@
-import { utils } from "./util.js";
+import "../docs/types.js";
+import { utils } from "../utils/util.js";
 
 const LOGPATHS = {
   prod: "/var/log/granarysync",

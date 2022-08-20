@@ -1,7 +1,7 @@
-import "./docs.js"
-import { optionsReader } from "./optionsReader.js"
-import { logger } from "./logger.js"
-import { syncHandler as syncer } from "./syncHandler.js"
+import "./docs/types.js"
+import { optionsReader } from "./modules/optionsReader.js"
+import { logger } from "./modules/logger.js"
+import { syncHandler as syncer } from "./modules/syncHandler.js"
 
 const args = Deno.args
 
@@ -26,11 +26,10 @@ async function start(runOnce) {
     var options = await optionsReader.read()
     let backupInstructions = getBackupInstructions()
 
-    if (backupInstructions.backupInterval) {
       /** @type SyncHandler */
       let syncHandler = Reflect.construct(
         syncer,
-        backupInstructions.backupTargets
+        [backupInstructions.backupTargets, backupInstructions.backupInterval]
       )
 
       if (Reflect.has(syncHandler, "setup")) {
@@ -49,7 +48,6 @@ async function start(runOnce) {
           }, backupInstructions.backupInterval)
         }
       }
-    }
   } else {
     logger.writeToLog("exception", "No backup interval is specified.")
   }

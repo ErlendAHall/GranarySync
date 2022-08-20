@@ -1,7 +1,8 @@
 {
   "deno.enable": true,
-  "deno.unstable": false,
+  "deno.unstable": true,
   "deno.codeLens.references": true,
   "deno.codeLens.referencesAllFunctions": true,
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "deno.lint": false
 }

@@ -1,5 +1,5 @@
-import "./docs.js";
-import { utils } from "./util.js"
+import "../docs/types.js";
+import { utils } from "../utils/util.js"
 
 const OPTIONSPATH = {
   prod: "/usr/local/bin/granarysync/options.json",
